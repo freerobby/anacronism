@@ -1,5 +1,6 @@
 source 'http://rubygems.org'
 
+gem "dalli", "~>1.0"
 gem "pony", "~>1.3"
 gem "sinatra"
 

@@ -54,16 +54,17 @@ describe "Anacronism App" do
       last_response.status.should == 200
     end
     it "stores time" do
+      settings.cache.set(:last_ping_received_at, nil)
+      
       Timecop.freeze(Time.at(1312299572))
       get '/'
-      ENV["LAST_PING_RECEIVED_AT"].should == "1312299572"
+      settings.cache.get(:last_ping_received_at).should == 1312299572
       Timecop.return
     end
     it "sends email if interval exceeds MAX_INTERVAL" do
-      old_lpra = ENV["LAST_PING_RECEIVED_AT"]
       old_max_interval = ENV["MAX_INTERVAL"]
       
-      ENV["LAST_PING_RECEIVED_AT"] = "1312299572"
+      settings.cache.set(:last_ping_received_at, 1312299572)
       ENV["MAX_INTERVAL"] = "30"
       Timecop.freeze(Time.at(1312299603)) # 31 seconds later
       Pony.should_receive(:mail)
@@ -71,13 +72,11 @@ describe "Anacronism App" do
       Timecop.return
       
       ENV["MAX_INTERVAL"] = old_max_interval
-      ENV["LAST_PING_RECEIVED_AT"] = old_lpra
     end
     it "does not send email if interval within MAX_INTERVAL" do
-      old_lpra = ENV["LAST_PING_RECEIVED_AT"]
       old_max_interval = ENV["MAX_INTERVAL"]
       
-      ENV["LAST_PING_RECEIVED_AT"] = "1312299572"
+      settings.cache.set(:last_ping_received_at, 1312299572)
       ENV["MAX_INTERVAL"] = "30"
       Timecop.freeze(Time.at(1312299601)) # 29 seconds later
       Pony.should_not_receive(:mail)
@@ -85,28 +84,23 @@ describe "Anacronism App" do
       Timecop.return
       
       ENV["MAX_INTERVAL"] = old_max_interval
-      ENV["LAST_PING_RECEIVED_AT"] = old_lpra
     end
     it "does not send email on first ping" do
-      old_lpra = ENV["LAST_PING_RECEIVED_AT"]
       old_max_interval = ENV["MAX_INTERVAL"]
       
-      ENV["LAST_PING_RECEIVED_AT"] = ""
+      settings.cache.set(:last_ping_received_at, nil)
       ENV["MAX_INTERVAL"] = "30"
       Pony.should_not_receive(:mail)
       get '/'
       
       ENV["MAX_INTERVAL"] = old_max_interval
-      ENV["LAST_PING_RECEIVED_AT"] = old_lpra
     end
     
     it "sends max of 3 consecutive emails" do
-      old_lpra = ENV["LAST_PING_RECEIVED_AT"]
       old_max_interval = ENV["MAX_INTERVAL"]
-      old_consecutive_emails = ENV["CONSECUTIVE_EMAILS"]
       
-      ENV["CONSECUTIVE_EMAILS"] = ""
-      ENV["LAST_PING_RECEIVED_AT"] = "1312299572"
+      settings.cache.set(:consecutive_emails, 0)
+      settings.cache.set(:last_ping_received_at, 1312299572)
       ENV["MAX_INTERVAL"] = "30"
       
       Timecop.freeze(Time.at(1312299603)) # 31 seconds later
@@ -130,36 +124,21 @@ describe "Anacronism App" do
       Timecop.return
       
       ENV["MAX_INTERVAL"] = old_max_interval
-      ENV["LAST_PING_RECEIVED_AT"] = old_lpra
-      ENV["CONSECUTIVE_EMAILS"] = old_consecutive_emails
     end
     it "resets consecutive emails when within interval" do
-      old_lpra = ENV["LAST_PING_RECEIVED_AT"]
       old_max_interval = ENV["MAX_INTERVAL"]
-      old_consecutive_emails = ENV["CONSECUTIVE_EMAILS"]
       
-      ENV["CONSECUTIVE_EMAILS"] = ""
-      ENV["LAST_PING_RECEIVED_AT"] = "1312299572"
+      settings.cache.set(:consecutive_emails, 2)
+      settings.cache.set(:last_ping_received_at, 1312299634)
       ENV["MAX_INTERVAL"] = "30"
       
-      Timecop.freeze(Time.at(1312299603)) # 31 seconds later
-      Pony.should_receive(:mail)
+      Timecop.freeze(Time.at(1312299663)) # 29 seconds later
+      Pony.should_not_receive(:mail)
       get '/'
-      Timecop.return
-      
-      Timecop.freeze(Time.at(1312299634)) # 62 seconds later
-      Pony.should_receive(:mail)
-      get '/'
-      Timecop.return
-      
-      Timecop.freeze(Time.at(1312299663)) # 91 seconds later
-      get '/'
-      ENV["CONSECUTIVE_EMAILS"].should == "0"
+      settings.cache.get(:consecutive_emails).should == 0
       Timecop.return
       
       ENV["MAX_INTERVAL"] = old_max_interval
-      ENV["LAST_PING_RECEIVED_AT"] = old_lpra
-      ENV["CONSECUTIVE_EMAILS"] = old_consecutive_emails
     end
   end
 end
