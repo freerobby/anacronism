@@ -5,4 +5,5 @@ gem "sinatra"
 group :test do
   gem "rack-test", "~>0.6"
   gem "rspec", "~>2.6"
+  gem "timecop", "~>0.3"
 end

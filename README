@@ -7,3 +7,6 @@ HTTP_USER
 HTTP_PASSWORD
 EXPECTED_INTERVAL (set in seconds)
 LEEWAY_BUFFER (set in seconds)
+
+Environment variables used/managed by app:
+LAST_PING_RECEIVED_AT

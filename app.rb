@@ -8,5 +8,6 @@ use Rack::Auth::Basic, "Access Restricted" do |username, password|
 end
 
 get '/' do
+  ENV["LAST_PING_RECEIVED_AT"] = Time.now.to_i.to_s
   "ACK"
 end
