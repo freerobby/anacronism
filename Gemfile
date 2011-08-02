@@ -9,3 +9,7 @@ group :test do
   gem "rspec", "~>2.6"
   gem "timecop", "~>0.3"
 end
+
+group :development do
+  gem "heroku", "~>2.4"
+end
