@@ -1,6 +1,6 @@
 Anacronism - an old school way to monitor cron via remote server. Designed for heroku.
 
-Monitoring app runs on heroku, expects a query from your cron at least every MAX_INTERVAL seconds. If an interval is too long, Anacronism sends emails to NOTIFY_LIST. Also sends you a daily email (via "rake cron") if interval is missing at end of day. Does NOT email you about missed individual intervals at present.
+The Anacronism monitoring app runs on heroku, expects a ping to "/" with HTTP Basic Auth from your cron at least every MAX_INTERVAL seconds. If an interval is too long, Anacronism sends emails to NOTIFY_LIST. Also sends you a daily email (via "rake cron") if interval is missed at end of day.
 
 Must set environment variables:
 HTTP_USER
@@ -8,9 +8,5 @@ HTTP_PASSWORD
 MAX_INTERVAL (set in seconds)
 NOTIFY_LIST (semicolon separated list of email addresses)
 EMAIL_FROM (emails come from this address)
-
-Environment variables used/managed by app, must be exported empty in heroku:
-LAST_PING_RECEIVED_AT
-CONSECUTIVE_EMAILS
 
 Requires free memcached, daily cron & sendgrid addons to be enabled.
