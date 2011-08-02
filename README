@@ -11,5 +11,6 @@ EMAIL_FROM (emails come from this address)
 
 Environment variables used/managed by app, must be exported empty in heroku:
 LAST_PING_RECEIVED_AT
+CONSECUTIVE_EMAILS
 
 Requires free cron & sendgrid addons to be enabled.
