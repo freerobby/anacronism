@@ -59,5 +59,45 @@ describe "Anacronism App" do
       ENV["LAST_PING_RECEIVED_AT"].should == "1312299572"
       Timecop.return
     end
+    it "sends email if interval exceeds MAX_INTERVAL" do
+      old_lpra = ENV["LAST_PING_RECEIVED_AT"]
+      old_max_interval = ENV["MAX_INTERVAL"]
+      
+      ENV["LAST_PING_RECEIVED_AT"] = "1312299572"
+      ENV["MAX_INTERVAL"] = "30"
+      Timecop.freeze(Time.at(1312299603)) # 31 seconds later
+      Pony.should_receive(:mail)
+      get '/'
+      Timecop.return
+      
+      ENV["MAX_INTERVAL"] = old_max_interval
+      ENV["LAST_PING_RECEIVED_AT"] = old_lpra
+    end
+    it "does not send email if interval within MAX_INTERVAL" do
+      old_lpra = ENV["LAST_PING_RECEIVED_AT"]
+      old_max_interval = ENV["MAX_INTERVAL"]
+      
+      ENV["LAST_PING_RECEIVED_AT"] = "1312299572"
+      ENV["MAX_INTERVAL"] = "30"
+      Timecop.freeze(Time.at(1312299601)) # 29 seconds later
+      Pony.should_not_receive(:mail)
+      get '/'
+      Timecop.return
+      
+      ENV["MAX_INTERVAL"] = old_max_interval
+      ENV["LAST_PING_RECEIVED_AT"] = old_lpra
+    end
+    it "does not send email on first ping" do
+      old_lpra = ENV["LAST_PING_RECEIVED_AT"]
+      old_max_interval = ENV["MAX_INTERVAL"]
+      
+      ENV["LAST_PING_RECEIVED_AT"] = ""
+      ENV["MAX_INTERVAL"] = "30"
+      Pony.should_not_receive(:mail)
+      get '/'
+      
+      ENV["MAX_INTERVAL"] = old_max_interval
+      ENV["LAST_PING_RECEIVED_AT"] = old_lpra
+    end
   end
 end

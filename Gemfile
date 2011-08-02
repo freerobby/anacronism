@@ -1,5 +1,6 @@
 source 'http://rubygems.org'
 
+gem "pony", "~>1.3"
 gem "sinatra"
 
 group :test do
