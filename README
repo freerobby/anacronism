@@ -1,1 +1,9 @@
-Anacronism - an old school way to monitor cron via remote server.
+Anacronism - an old school way to monitor cron via remote server. Designed for heroku.
+
+Monitoring app runs on heroku, expects a query from your cron every EXPECTED_INTERVAL seconds. Sends you an email if an interval is LEEWAY_BUFFER seconds more than expected. Sends you a daily email (via "rake cron") if interval is missing at end of day. Does NOT email you about missed individual intervals at present.
+
+Must set environment variables:
+HTTP_USER
+HTTP_PASSWORD
+EXPECTED_INTERVAL (set in seconds)
+LEEWAY_BUFFER (set in seconds)
