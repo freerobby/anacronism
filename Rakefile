@@ -9,6 +9,15 @@ task :cron do
     Pony.mail :to => ENV["NOTIFY_LIST"],
               :from => ENV["EMAIL_FROM"],
               :subject => "[Anacronism] Cron Is Overdue",
-              :body => "We have not received a ping from cron in #{Time.now.to_i - @last_ping_received_at} seconds."
+              :body => "We have not received a ping from cron in #{Time.now.to_i - @last_ping_received_at} seconds.",
+              :via => :smtp,
+              :via_options => {
+                :address => "smtp.sendgrid.net",
+                :port => "25", 
+                :domain => ENV["SENDGRID_DOMAIN"], 
+                :authentication => :plain, 
+                :user_name => ENV["SENDGRID_USERNAME"], 
+                :password => ENV["SENDGRID_PASSWORD"]
+              }
   end
 end

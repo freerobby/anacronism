@@ -19,7 +19,16 @@ get '/' do
     Pony.mail :to => ENV["NOTIFY_LIST"],
               :from => ENV["EMAIL_FROM"],
               :subject => "[Anacronism] Cron Interval Exceeded #{ENV["MAX_INTERVAL"]} Seconds",
-              :body => "The last cron interval was #{this_ping_received_at - @last_ping_received_at} seconds.#{' This is the third and final notice.' if @consecutive_emails == 3}"
+              :body => "The last cron interval was #{this_ping_received_at - @last_ping_received_at} seconds.#{' This is the third and final notice.' if @consecutive_emails == 3}",
+              :via => :smtp,
+              :via_options => {
+                :address => "smtp.sendgrid.net",
+                :port => "25", 
+                :domain => ENV["SENDGRID_DOMAIN"], 
+                :authentication => :plain, 
+                :user_name => ENV["SENDGRID_USERNAME"], 
+                :password => ENV["SENDGRID_PASSWORD"]
+              }
   elsif (this_ping_received_at - @last_ping_received_at <= ENV["MAX_INTERVAL"].to_i)
     @consecutive_emails = 0
   end
